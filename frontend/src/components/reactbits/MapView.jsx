@@ -4,7 +4,6 @@ import Map, { Source, Layer, Marker, Popup, NavigationControl } from 'react-map-
 import { geoWilayahKemitir, mapbox3DBuildingLayer } from '../../data/wilayahkemitir';
 import { defaultSumberAir } from '../../data/sumberair';
 
-// 1. Named Export (agar cocok dengan import { MapView } di App.jsx)
 export function MapView({
   mapRef,
   MAPBOX_TOKEN,
@@ -22,21 +21,21 @@ export function MapView({
   setSelectedPoint
 }) {
   return (
-    <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-2 border-b border-slate-100 gap-2">
+    <div className="lg:col-span-2 bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-white/10 p-4 shadow-2xl flex flex-col">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-white/10 gap-2">
         <div>
-          <h2 className="text-base font-bold text-slate-900">Sebaran Data Spasial & Mapbox 3D</h2>
-          <p className="text-xs text-slate-500">Node Batas Akurat 130+ Titik • Mapbox Access Token Integrated</p>
+          <h2 className="text-base font-bold text-white tracking-tight">Sebaran Data Spasial & Mapbox 3D</h2>
+          <p className="text-xs text-slate-400">Node Batas Akurat 130+ Titik • Dynamic Vector/Satellite Layer</p>
         </div>
         <button
           onClick={() => setMapStyle(mapStyle.includes('satellite') ? 'mapbox://styles/mapbox/streets-v12' : 'mapbox://styles/mapbox/satellite-streets-v12')}
-          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition"
+          className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/10 text-xs font-semibold rounded-xl transition backdrop-blur-md"
         >
           {mapStyle.includes('satellite') ? '🗺️ Style Vektor' : '🛰️ Style Satelit'}
         </button>
       </div>
 
-      <div className="h-[460px] w-full relative rounded-xl overflow-hidden border border-slate-200">
+      <div className="h-[460px] w-full relative rounded-xl overflow-hidden border border-white/10 shadow-inner">
         <Map
           ref={mapRef}
           mapboxAccessToken={MAPBOX_TOKEN}
@@ -49,29 +48,29 @@ export function MapView({
           <NavigationControl position="bottom-right" />
           <Source id="mapbox-dem" type="raster-dem" url="mapbox://mapbox.mapbox-terrain-dem-v1" tileSize={512} maxzoom={14} />
 
-          {/* Poligon Batas Desa */}
+          {/* GeoJSON Polygon & Line */}
           <Source id="wilayah-src" type="geojson" data={geoWilayahKemitir}>
             <Layer id="risk-fill" type="fill" layout={{ visibility: showRisiko ? 'visible' : 'none' }} paint={{ 'fill-color': '#eab308', 'fill-opacity': 0.30 }} />
             <Layer id="red-dashed-boundary" type="line" layout={{ visibility: showBatasDesa ? 'visible' : 'none' }} paint={{ 'line-color': '#ef4444', 'line-width': 3, 'line-dasharray': [3, 2] }} />
           </Source>
 
-          {/* NATIVE MAPBOX 3D BUILDINGS */}
+          {/* Mapbox 3D Buildings */}
           {showMapbox3D && <Layer {...mapbox3DBuildingLayer} />}
 
-          {/* Titik Air */}
+          {/* Markers */}
           {showSumberAir && defaultSumberAir.map((item) => (
             <Marker key={item.id} longitude={item.lng} latitude={item.lat} onClick={(e) => { e.originalEvent.stopPropagation(); setSelectedPoint(item); }}>
-              <div className="w-7 h-7 bg-blue-600 border-2 border-white rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:scale-125 transition-transform">
+              <div className="w-8 h-8 bg-blue-600/90 border-2 border-white rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:scale-125 transition-transform backdrop-blur-md">
                 <span className="text-xs">💧</span>
               </div>
             </Marker>
           ))}
 
-          {/* Popup Titik Air */}
+          {/* Popup */}
           {selectedPoint && (
             <Popup longitude={selectedPoint.lng} latitude={selectedPoint.lat} onClose={() => setSelectedPoint(null)} closeButton={true}>
-              <div className="p-1 min-w-[130px]">
-                <h4 className="font-bold text-xs text-slate-900 mb-0.5">{selectedPoint.nama}</h4>
+              <div className="p-1 min-w-[130px] text-slate-800">
+                <h4 className="font-bold text-xs mb-0.5">{selectedPoint.nama}</h4>
                 <p className="text-[11px] text-slate-600">Debit: {selectedPoint.debit}</p>
                 <p className="text-[11px] text-blue-600 font-bold mt-1">Jarak: {selectedPoint.jarak}</p>
               </div>
@@ -79,24 +78,24 @@ export function MapView({
           )}
         </Map>
 
-        {/* FLOATING CONTROLS IN MAP */}
-        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md p-3 rounded-xl border border-slate-200 shadow-md text-xs space-y-1.5 z-10 w-52">
-          <p className="font-bold text-[11px] text-slate-700 uppercase tracking-wider mb-1">Layer Toggle Peta</p>
-          <label className="flex items-center space-x-2 text-slate-700 cursor-pointer">
-            <input type="checkbox" checked={showBatasDesa} onChange={(e) => setShowBatasDesa(e.target.checked)} className="rounded text-red-600 focus:ring-0" />
+        {/* Floating Controls Inside Map */}
+        <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-xl p-3.5 rounded-2xl border border-white/10 shadow-2xl text-xs space-y-2 z-10 w-56 text-slate-200">
+          <p className="font-bold text-[10px] text-emerald-400 uppercase tracking-wider mb-1">Layer Toggle Peta</p>
+          <label className="flex items-center space-x-2 cursor-pointer hover:text-white transition">
+            <input type="checkbox" checked={showBatasDesa} onChange={(e) => setShowBatasDesa(e.target.checked)} className="rounded text-red-500 focus:ring-0" />
             <span className="text-[11px] font-semibold">Garis Batas Merah Desa</span>
           </label>
-          <label className="flex items-center space-x-2 text-slate-700 cursor-pointer">
-            <input type="checkbox" checked={showRisiko} onChange={(e) => setShowRisiko(e.target.checked)} className="rounded text-amber-600 focus:ring-0" />
+          <label className="flex items-center space-x-2 cursor-pointer hover:text-white transition">
+            <input type="checkbox" checked={showRisiko} onChange={(e) => setShowRisiko(e.target.checked)} className="rounded text-amber-500 focus:ring-0" />
             <span className="text-[11px]">Area Wilayah Desa</span>
           </label>
-          <label className="flex items-center space-x-2 text-slate-700 cursor-pointer">
-            <input type="checkbox" checked={showSumberAir} onChange={(e) => setShowSumberAir(e.target.checked)} className="rounded text-blue-600 focus:ring-0" />
+          <label className="flex items-center space-x-2 cursor-pointer hover:text-white transition">
+            <input type="checkbox" checked={showSumberAir} onChange={(e) => setShowSumberAir(e.target.checked)} className="rounded text-blue-500 focus:ring-0" />
             <span className="text-[11px]">Titik Sumber Air</span>
           </label>
-          <label className="flex items-center space-x-2 text-slate-700 cursor-pointer">
-            <input type="checkbox" checked={showMapbox3D} onChange={(e) => setShowMapbox3D(e.target.checked)} className="rounded text-purple-600 focus:ring-0" />
-            <span className="text-[11px] font-bold text-purple-700">Native Mapbox 3D Layer</span>
+          <label className="flex items-center space-x-2 cursor-pointer hover:text-white transition">
+            <input type="checkbox" checked={showMapbox3D} onChange={(e) => setShowMapbox3D(e.target.checked)} className="rounded text-purple-500 focus:ring-0" />
+            <span className="text-[11px] font-bold text-purple-300">Native Mapbox 3D Layer</span>
           </label>
         </div>
       </div>
@@ -104,5 +103,4 @@ export function MapView({
   );
 }
 
-// 2. Default Export (sebagai cadangan pengaman modul Vite)
 export default MapView;

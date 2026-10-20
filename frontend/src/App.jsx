@@ -3,10 +3,9 @@ import React, { useState, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-// Import Data
+// Import Data & Komponen
 import { initialDatasets } from './data/sumberair';
-
-// Import Komponen Menggunakan Named Export (Kurung Kurawal)
+import { Topography } from './components/reactbits/Topography';
 import { Navbar } from './components/reactbits/Navbar';
 import { MetricsGrid } from './components/reactbits/MetricsGrid';
 import { MapView } from './components/reactbits/MapView';
@@ -14,7 +13,6 @@ import { Sidebar } from './components/reactbits/Sidebar';
 import { TabelDataset } from './components/reactbits/TabelDataset';
 import { DatasetModal } from './components/reactbits/DatasetModal';
 
-// Optimasi Cache Mapbox
 try {
   if (mapboxgl && mapboxgl.setGlobalMapCacheSize) {
     mapboxgl.setGlobalMapCacheSize(100);
@@ -28,13 +26,11 @@ const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 export default function App() {
   const mapRef = useRef(null);
 
-  // States
   const [activeTab, setActiveTab] = useState('Ringkasan');
   const [datasetList] = useState(initialDatasets);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
 
-  // Map Controls State
   const [showBatasDesa, setShowBatasDesa] = useState(true);
   const [showRisiko, setShowRisiko] = useState(true);
   const [showSumberAir, setShowSumberAir] = useState(true);
@@ -57,57 +53,80 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans antialiased">
-      {/* Top Navbar */}
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Dashboard Kemitir Tangguh</h1>
-            <p className="text-xs text-slate-500 mt-0.5">Sistem Informasi Geospasial • Native Mapbox 3D Architecture</p>
-          </div>
-          <button onClick={() => setIsModalOpen(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm">
-            + Tambah dataset
-          </button>
-        </div>
-
-        {/* 4 Metric Cards */}
-        <MetricsGrid />
-
-        {/* Map Viewport & Right Panel */}
-        <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${activeTab !== 'Ringkasan' ? 'hidden' : ''}`}>
-          <MapView 
-            mapRef={mapRef}
-            MAPBOX_TOKEN={MAPBOX_TOKEN}
-            mapStyle={mapStyle}
-            setMapStyle={setMapStyle}
-            showBatasDesa={showBatasDesa}
-            setShowBatasDesa={setShowBatasDesa}
-            showRisiko={showRisiko}
-            setShowRisiko={setShowRisiko}
-            showSumberAir={showSumberAir}
-            setShowSumberAir={setShowSumberAir}
-            showMapbox3D={showMapbox3D}
-            setShowMapbox3D={setShowMapbox3D}
-            selectedPoint={selectedPoint}
-            setSelectedPoint={setSelectedPoint}
-          />
-          <Sidebar handleFlyTo={handleFlyTo} />
-        </div>
-
-        {/* Tabel Dataset Spasial */}
-        <TabelDataset 
-          filteredDatasets={filteredDatasets}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
+    <div className="relative min-h-screen bg-transparent text-slate-100 font-sans antialiased overflow-x-hidden selection:bg-emerald-500 selection:text-white">
+      
+      {/* 🌐 Background Topography Fixed di Layer Paling Bawah */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <Topography 
+          color="#10b981" 
+          lineCount={30} 
+          speed={0.25} 
+          opacity={0.8} 
         />
-      </main>
+      </div>
 
-      {/* Modal Tambah Dataset */}
+      {/* Konten Utama WebGIS */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        
+        {/* Navbar Fixed di Atas */}
+        <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        {/* Main Content dengan pt-24 agar tidak tertutup header fixed */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-6 space-y-6 flex-grow w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-black text-white tracking-tight drop-shadow-md">Dashboard Kemitir Tangguh</h1>
+              <p className="text-xs text-slate-200 mt-0.5 font-medium">Sistem Informasi Geospasial • Native Mapbox 3D Architecture</p>
+            </div>
+            <button 
+              onClick={() => setIsModalOpen(true)} 
+              className="bg-emerald-500/90 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-500/30 transition transform hover:scale-105 border border-emerald-300/40 backdrop-blur-md"
+            >
+              + Tambah dataset
+            </button>
+          </div>
+
+          {/* Metrics Grid */}
+          <MetricsGrid />
+
+          {/* Map & Sidebar */}
+          <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${activeTab !== 'Ringkasan' ? 'hidden' : ''}`}>
+            <div className="lg:col-span-2 liquid-glass rounded-2xl p-4 shadow-2xl flex flex-col">
+              <MapView 
+                mapRef={mapRef}
+                MAPBOX_TOKEN={MAPBOX_TOKEN}
+                mapStyle={mapStyle}
+                setMapStyle={setMapStyle}
+                showBatasDesa={showBatasDesa}
+                setShowBatasDesa={setShowBatasDesa}
+                showRisiko={showRisiko}
+                setShowRisiko={setShowRisiko}
+                showSumberAir={showSumberAir}
+                setShowSumberAir={setShowSumberAir}
+                showMapbox3D={showMapbox3D}
+                setShowMapbox3D={setShowMapbox3D}
+                selectedPoint={selectedPoint}
+                setSelectedPoint={setSelectedPoint}
+              />
+            </div>
+            <div className="liquid-glass rounded-2xl p-1 shadow-2xl">
+              <Sidebar handleFlyTo={handleFlyTo} />
+            </div>
+          </div>
+
+          {/* Tabel Dataset */}
+          <div className="liquid-glass rounded-2xl p-5 shadow-2xl">
+            <TabelDataset 
+              filteredDatasets={filteredDatasets}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+            />
+          </div>
+        </main>
+      </div>
+
       <DatasetModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </div>
   );

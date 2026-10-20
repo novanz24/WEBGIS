@@ -4,9 +4,6 @@ import Map, { Source, Layer, Marker, Popup, NavigationControl } from 'react-map-
 import mapboxgl from 'mapbox-gl'; // Import mapbox-gl untuk caching
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-// 🔑 GANTI DENGAN TOKEN ASLI ANDA (Dimulai dengan 'pk.eyJ...')
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoibm92YW56YTI0IiwiYSI6ImNtdmduZHg2MjAzankyd3F1NGp4dndkcWIifQ.LR4fEJF19FoimH6Uokkt-w'; 
-
 // --- OPTIMASI CACHING MAPBOX (MENGHEMAT API KEY) ---
 // Meningkatkan batas cache penyimpanan tile di browser agar tidak download ulang
 try {
@@ -16,6 +13,8 @@ try {
 } catch (e) {
   console.log("Caching optimization not supported", e);
 }
+
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
 // 1. DATA POLIGON BATAS DESA KEMITIR (130+ TITIK KOORDINAT PRESISI ASLI)
 const geoWilayahKemitir = {
